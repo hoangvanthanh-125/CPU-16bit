@@ -1,0 +1,32 @@
+LIBRARY IEEE;
+USE IEEE.STD_LOGIC_1164.ALL;
+USE IEEE.STD_LOGIC_UNSIGNED.ALL;
+
+ENTITY PC IS
+	PORT (
+		clk : IN STD_LOGIC;
+		PCclr : IN STD_LOGIC;
+		PCinc : IN STD_LOGIC;
+		PCld : IN STD_LOGIC;
+		PC_in : IN STD_LOGIC_VECTOR (7 DOWNTO 0);
+		PC_out : OUT STD_LOGIC_VECTOR (15 DOWNTO 0)
+	);
+END PC;
+
+ARCHITECTURE PC_arch OF PC IS
+	SIGNAL PCout : STD_LOGIC_VECTOR (15 DOWNTO 0);
+BEGIN
+	PROCESS (clk)
+	BEGIN
+		IF PCclr = '1' THEN
+			PCout <= (OTHERS => '0');
+		ELSIF clk'EVENT AND clk = '1' THEN
+			IF PCld = '1' THEN
+				PCout <= (x"00" & PC_in);
+			ELSIF PCinc = '1' THEN
+				PCout <= PCout + 1;
+			END IF;
+		END IF;
+	END PROCESS;
+	PC_out <= PCout; 
+END PC_arch;

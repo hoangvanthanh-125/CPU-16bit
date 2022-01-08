@@ -1,0 +1,37 @@
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.STD_LOGIC_UNSIGNED.ALL;
+
+entity ALU is
+    Port ( OPr1 : in STD_LOGIC_VECTOR(15 downto 0);
+           OPr2 : in STD_LOGIC_VECTOR(15 downto 0);
+           ALUs : in STD_LOGIC_VECTOR (1 downto 0);
+           ALUr : out STD_LOGIC_VECTOR(15 downto 0);
+           ALUz : out STD_LOGIC
+        );
+end ALU;
+
+architecture
+ALU of ALU is
+
+signal add_result: STD_LOGIC_VECTOR(15 downto 0) := OPr1 + OPr2;
+signal sub_result: STD_LOGIC_VECTOR(15 downto 0) := OPr1 - OPr2;
+signal and_result: STD_LOGIC_VECTOR(15 downto 0) := OPr1 and OPr2;
+signal or_result: STD_LOGIC_VECTOR(15 downto 0) := OPr1 or OPr2;
+signal result: STD_LOGIC_VECTOR(15 downto 0);
+component mux4to1 IS
+   GENERIC ( 
+		 DATA_WIDTH : integer := 16);
+   PORT (A, B, C, D: IN  	std_logic_vector (DATA_WIDTH-1 downto 0);
+        SEL : IN 	 std_logic_vector (1 downto 0);
+        Z: OUT 	std_logic_vector (DATA_WIDTH-1 downto 0)
+               );
+END component;
+
+begin
+Mux: mux4to1 PORT MAP
+( add_result,sub_result, or_result,and_result,ALUs,result);
+    ALUr <= result;
+    ALUz <= '1' when OPr1 =
+"0000000000000000" else '0';
+end ALU;
