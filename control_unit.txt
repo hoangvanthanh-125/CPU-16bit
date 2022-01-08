@@ -1,75 +1,39 @@
-library IEEE;
-use IEEE.STD_LOGIC_1164.ALL;
+
 LIBRARY IEEE;
 USE IEEE.std_logic_1164.ALL;
 USE IEEE.std_logic_arith.ALL;
 
-ENTITY control_unit IS 
+ENTITY cpu IS
 	GENERIC (
 		DATA_WIDTH : INTEGER := 16; -- Data Width
 		ADDR_WIDTH : INTEGER := 16 -- Address width
 	);
-	PORT (-- you will need to add more ports here as design grows
+	PORT (
 		nReset : IN STD_LOGIC; -- high active reset signal
--- 		start : IN STD_LOGIC; -- high active Start: enable cpu
+		-- start : in STD_LOGIC; -- high active Start: enable cpu
 		clk : IN STD_LOGIC; -- Clock
-		IR_in : IN STD_LOGIC_VECTOR (DATA_WIDTH - 1 DOWNTO 0);
-		data_in0 : IN STD_LOGIC_VECTOR (DATA_WIDTH - 1 DOWNTO 0);
-        ALUz : IN STD_LOGIC;
- 
 		Addr_out : OUT STD_LOGIC_VECTOR (ADDR_WIDTH - 1 DOWNTO 0);
-		RFs : OUT STD_LOGIC_VECTOR(1 DOWNTO 0);
-		RFwa : OUT STD_LOGIC_VECTOR(3 DOWNTO 0);
-		RFwe : OUT STD_LOGIC;
-		OPr1a : OUT STD_LOGIC_VECTOR(3 DOWNTO 0);
-		OPr1e : OUT STD_LOGIC;
-		OPr2a : OUT STD_LOGIC_VECTOR(3 DOWNTO 0);
-		OPr2e : OUT STD_LOGIC;
-		ALUs : OUT STD_LOGIC_VECTOR(1 DOWNTO 0);
-		IRld : OUT STD_LOGIC;
-		PCinc : OUT STD_LOGIC;
-		PCclr : OUT STD_LOGIC;
-		PCld : OUT STD_LOGIC;
-		Ms : OUT STD_LOGIC_VECTOR(1 DOWNTO 0);
-		Mre : OUT STD_LOGIC;
-		Mwe : OUT STD_LOGIC 
-		-- add ports as required here
- 
-	); 
+		IR_in : IN STD_LOGIC_VECTOR (DATA_WIDTH - 1 DOWNTO 0);
+		ALU_out : OUT STD_LOGIC_VECTOR (DATA_WIDTH - 1 DOWNTO 0);
+		Mre, Mwe : OUT std_logic
+	);
+END cpu;
+ARCHITECTURE struc OF cpu IS
 
-END control_unit;
-
-ARCHITECTURE controller_unit_arch OF control_unit IS
-	SIGNAL IR_out, PC_out : STD_LOGIC_VECTOR (15 DOWNTO 0);
-	SIGNAL PC_in : STD_LOGIC_VECTOR (7 DOWNTO 0);
-
-	COMPONENT PC IS
-		PORT (
-			clk : IN STD_LOGIC;
-			PCclr : IN STD_LOGIC;
-			PCinc : IN STD_LOGIC;
-			PCld : IN STD_LOGIC;
-			PC_in : IN STD_LOGIC_VECTOR (7 DOWNTO 0);
-			PC_out : OUT STD_LOGIC_VECTOR (15 DOWNTO 0)
+	COMPONENT control_unit IS
+		GENERIC (
+			DATA_WIDTH : INTEGER := 16; -- Data Width
+			ADDR_WIDTH : INTEGER := 16 -- Address width
 		);
-	END COMPONENT;
-    
-	COMPONENT IR IS
-		PORT (
-			clk : IN STD_LOGIC;
-			IR_in : IN STD_LOGIC_VECTOR (15 DOWNTO 0);
-			IRld : IN STD_LOGIC;
-			IR_out : OUT STD_LOGIC_VECTOR (15 DOWNTO 0)
-		);
-	END COMPONENT;
-    
-	COMPONENT controller IS
-
-		PORT (
-			reset : IN STD_LOGIC;
-			clk : IN STD_LOGIC;
+		PORT (-- you will need to add more ports here as design grows
+			nReset : IN STD_LOGIC; -- high active reset signal
+			-- start : IN STD_LOGIC; -- high active Start: enable cpu
+			clk : IN STD_LOGIC; -- Clock
+			IR_in : IN STD_LOGIC_VECTOR (DATA_WIDTH - 1 DOWNTO 0);
+			data_in0 : IN STD_LOGIC_VECTOR (DATA_WIDTH - 1 DOWNTO 0);
 			ALUz : IN STD_LOGIC;
-			INSTR : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
+
+			Addr_out : OUT STD_LOGIC_VECTOR (ADDR_WIDTH - 1 DOWNTO 0);
 			RFs : OUT STD_LOGIC_VECTOR(1 DOWNTO 0);
 			RFwa : OUT STD_LOGIC_VECTOR(3 DOWNTO 0);
 			RFwe : OUT STD_LOGIC;
@@ -78,76 +42,120 @@ ARCHITECTURE controller_unit_arch OF control_unit IS
 			OPr2a : OUT STD_LOGIC_VECTOR(3 DOWNTO 0);
 			OPr2e : OUT STD_LOGIC;
 			ALUs : OUT STD_LOGIC_VECTOR(1 DOWNTO 0);
-			IRld : OUT STD_LOGIC;
-			PCincr : OUT STD_LOGIC;
-			PCclr : OUT STD_LOGIC;
-			PCld : OUT STD_LOGIC;
-			Ms : OUT STD_LOGIC_VECTOR(1 DOWNTO 0);
 			Mre : OUT STD_LOGIC;
 			Mwe : OUT STD_LOGIC
 		);
-	END COMPONENT;
-    
-	COMPONENT MUX3to1 IS
-		PORT (
-			data_in0, data_in1 : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
-			data_in2 : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
-			RFs : IN STD_LOGIC_VECTOR(1 DOWNTO 0);
-			data_out : OUT STD_LOGIC_VECTOR(15 DOWNTO 0)
-		);
-	END COMPONENT;
- 
- 
-BEGIN
-	IR_RES : IR
-	PORT MAP(
-		clk => clk,
-        IR_in => IR_in,
-		IRld => IRld,
-        IR_out => IR_out
-	);
-    
-	CONTROLLER_R : controller
-	PORT MAP(
-		reset =>nReset,
-        clk => clk, 
-		ALUz => ALUz, 
-		INSTR => IR_out, 
-		RFs => RFs, 
-		RFwa => RFwa, 
-		RFwe => RFwe, 
-		OPr1a => OPr1a, 
-		OPr1e => OPr1e, 
-		OPr2a => OPr2a, 
-		OPr2e => OPr2e, 
-		ALUs => ALUs, 
-		IRld => IRld, 
-		PCincr => PCinc, 
-		PCclr => PCclr, 
-		PCld => PCld, 
-		Ms => Ms, 
-		Mre => Mre, 
-		Mwe => Mwe
-	);
- 
-	PC_in <= IR_out(7 DOWNTO 0);
-	PC_C : PC
-	PORT MAP(
-		clk => clk, 
-		PCclr => PCclr, 
-		PCinc => PCinc, 
-		PCld => Pcld, 
-		PC_in => PC_in, 
-		PC_out => PC_out
-	);
-	MUX31 : MUX3to1
-	PORT MAP(
-		data_in0 => data_in0, 
-		data_in1 => (x"00" & IR_out(7 DOWNTO 0)), 
-		data_in2 => PC_out,
-        RFs => MS,
-		data_out => Addr_out 
-	);
-    END controller_unit_arch;
-    
 
+	END COMPONENT;
+
+	COMPONENT dpmem IS
+		GENERIC (
+			DATA_WIDTH : INTEGER := 16; -- Word Width
+			ADDR_WIDTH : INTEGER := 16 -- Address width
+		);
+
+		PORT (
+			-- Writing
+			Clk : IN std_logic; -- clock
+			nReset : IN std_logic; -- Reset input
+			addr : IN std_logic_vector(ADDR_WIDTH - 1 DOWNTO 0); -- Address
+			-- Writing Port
+			Wen : IN std_logic; -- Write Enable
+			Datain : IN std_logic_vector(DATA_WIDTH - 1 DOWNTO 0) := (OTHERS => '0'); -- Input Data
+			-- Reading Port
+ 
+			Ren : IN std_logic; -- Read Enable
+			Dataout : OUT std_logic_vector(DATA_WIDTH - 1 DOWNTO 0) -- Output data
+ 
+			);
+		END COMPONENT;
+
+		COMPONENT datapath IS
+			GENERIC (
+				DATA_WIDTH : INTEGER := 16; -- Data Width
+				ADDR_WIDTH : INTEGER := 16 -- Address width
+			);
+			PORT (
+				nReset : IN STD_LOGIC;
+				clk : IN STD_LOGIC;
+				Data_in_1 : IN std_logic_vector(15 DOWNTO 0);
+				Data_in_2 : IN std_logic_vector(DATA_WIDTH - 1 DOWNTO 0);
+				RFs : IN STD_LOGIC_VECTOR(1 DOWNTO 0);
+				RFwa, OPr1a, OPr2a : IN STD_LOGIC_VECTOR(ADDR_WIDTH – 1 DOWNTO 0);
+				RFwe, OPr1e, OPr2e : IN STD_LOGIC;
+				ALUs : IN STD_LOGIC_VECTOR(1 DOWNTO 0);
+				Data_out_opr1 : OUT STD_LOGIC_VECTOR (DATA_WIDTH - 1 DOWNTO 0);
+				Data_out_opr2 : OUT STD_LOGIC_VECTOR (DATA_WIDTH - 1 DOWNTO 0);
+				ALUz : OUT STD_LOGIC;
+                ALUr: OUT  STD_LOGIC_VECTOR (15 DOWNTO 0)
+			);
+		END COMPONENT;
+		SIGNAL RFs : STD_LOGIC_VECTOR(1 DOWNTO 0);
+		SIGNAL RFwa : STD_LOGIC_VECTOR(3 DOWNTO 0);
+		SIGNAL RFwe : STD_LOGIC;
+		SIGNAL OPr1a : STD_LOGIC_VECTOR(3 DOWNTO 0);
+		SIGNAL OPr1e : STD_LOGIC;
+		SIGNAL OPr2a : STD_LOGIC_VECTOR(3 DOWNTO 0);
+		SIGNAL OPr2e : STD_LOGIC;
+		SIGNAL ALUs : STD_LOGIC_VECTOR(1 DOWNTO 0);
+		SIGNAL IR_out : OUT STD_LOGIC_VECTOR (15 DOWNTO 0);
+		SIGNAL Data_out_opr1 : STD_LOGIC_VECTOR (15 DOWNTO 0);
+		SIGNAL Data_out_opr2 : STD_LOGIC_VECTOR (15 DOWNTO 0);
+		SIGNAL ALUz : STD_LOGIC;
+	BEGIN
+		--ctrl_U: controller port map(?);
+		CONTROL_U :
+		PORT MAP(
+			nReset => nReset, 
+			-- start : IN STD_LOGIC; -- high active Start: enable cpu
+			clk => clk, 
+			IR_in => IR_in, 
+			data_in0 => SIGNAL Data_out_opr2, 
+			ALUz => ALUz, 
+			Addr_out => Addr_out, 
+			RFs => RFs, 
+			RFwa => RFwa, 
+			RFwe => RFwe, 
+			OPr1a => OPr1a, 
+			OPr1e => OPr1e, 
+			OPr2a => OPr2a, 
+			OPr2e => OPr2e, 
+			ALUs => ALUs, 
+			Mre => Mre, 
+			Mwe => Mwe, 
+			IR_out => IR_out);
+            
+			--Dp_U: datapath port map(?);
+			DP_U : datapathPORT MAP(
+			nReset => nReset, 
+			clk => clk, 
+			Data_in_1 => (x"00" & IR_out(7 DOWNTO 0)), 
+			Data_in_2 => IR_in, 
+			RFs => RFs, 
+			RFwa => RFwa, 
+			OPr1a => OPr1a, 
+			OPr2a => OPr2a, 
+			RFwe => RFwe, 
+			OPr1e => OPr1e, 
+			OPr2e => OPr2e, 
+			ALUs => ALUsData_out_opr1 => Data_out_opr1, 
+			Data_out_opr2 => Data_out_opr2, 
+			ALUz => ALUz,
+                        ALUr => ALU_out
+		);
+		--Mem_U: dpmem port map (?);
+		Mem_U : dpmem
+		PORT MAP(
+			Clk => clk, 
+			nReset => nReset, 
+			addr => Addr_out 
+			Wen => Mwe, 
+			Datain => Data_out_opr1, 
+
+			Ren => Mre, 
+			Dataout => IR_in
+		);
+
+ 
+
+END struc;
