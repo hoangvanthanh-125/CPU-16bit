@@ -1,54 +1,49 @@
-library IEEE;
-use IEEE.STD_LOGIC_1164.ALL;
-use IEEE.STD_LOGIC_UNSIGNED.ALL;
+LIBRARY IEEE;
+USE IEEE.STD_LOGIC_1164.ALL;
+USE IEEE.STD_LOGIC_UNSIGNED.ALL;
 
-entity RF is
-    Port ( reset : in STD_LOGIC;
-           clk : in STD_LOGIC;
-           RFin : in
-STD_LOGIC_VECTOR (15 downto 0);
-           RFwa : in
-STD_LOGIC_VECTOR (3 downto 0);
-           RFwe : in STD_LOGIC;
-           OPr1a : in
-STD_LOGIC_VECTOR (3 downto 0);
-           OPr1e : in STD_LOGIC;
-           OPr2a : in
-STD_LOGIC_VECTOR (3 downto 0);
-           OPr2e : in STD_LOGIC;
-           OPr1 : out
-STD_LOGIC_VECTOR (15 downto 0);
-           OPr2 : out
-STD_LOGIC_VECTOR (15 downto 0));
-end RF;
-architecture RF_arch of register_file is
-    type DATA_ARRAY is array (integer range<>) of STD_LOGIC_VECTOR(15 downto 0);
-    signal RF : DATA_ARRAY(0 to
-15) := (others => (others => '0'));
-begin
-    process(clk, reset)
-    begin
-        if reset = '1' then
-            OPr1 <= (others
-=> '0');
-            OPr2 <= (others
-=> '0');
-            RF <= (others
-=> (others => '0'));
-        elsif clk’event and clk
-= '1' then
-            if RFwe = '1' then
+ENTITY RF IS
+	PORT (
+		reset : IN STD_LOGIC;
+		clk : IN STD_LOGIC;
+		RFin : INSTD_LOGIC_VECTOR (15 DOWNTO 0);
+		RFwa : INSTD_LOGIC_VECTOR (3 DOWNTO 0);
+		RFwe : IN STD_LOGIC;
+		OPr1a : INSTD_LOGIC_VECTOR (3 DOWNTO 0);
+		OPr1e : IN STD_LOGIC;
+		OPr2a : INSTD_LOGIC_VECTOR (3 DOWNTO 0);
+		OPr2e : IN STD_LOGIC;
+		OPr1 : OUTSTD_LOGIC_VECTOR (15 DOWNTO 0);
+		OPr2 : OUTSTD_LOGIC_VECTOR (15 DOWNTO 0)
+	);
 
-RF(conv_integer(RFwa)) <= RFin;
-            end if;
-            if OPr1e = '1' then
-                OPr1 <=
-RF(conv_integer(OPr1a));
-            end if;
-            if OPr2e = '1' then
-                OPr2 <=
-RF(conv_integer(OPr2a));
-            end if;
-        end if;
-    end process;
-end RF_arch;
+END RF;
+ARCHITECTURE RF_arch OF RF IS
+	TYPE DATA_ARRAY IS ARRAY (INTEGER RANGE <>) OF STD_LOGIC_VECTOR(15 DOWNTO 0);
+	SIGNAL RF : DATA_ARRAY(0 TO
+	15) := (OTHERS => (OTHERS => '0'));
+	BEGINPROCESS (clk, reset)
+		BEGINIF reset = '0' THEN
+		OPr1 <= (OTHERS
+			'0');
+			OPr2 <= (OTHERS
+				'0');
+				RF <= (OTHERS
+					(OTHERS => '0'));
+	ELSIF clk'EVENT AND clk
+		'1' THEN
+		IF RFwe = '1' THEN
+
+			RF(conv_integer(RFwa)) <= RFin;
+		END IF;
+		IF OPr1e = '1' THEN
+			OPr1 <= 
+				RF(conv_integer(OPr1a));
+		END IF;
+		IF OPr2e = '1' THEN
+			OPr2 <= 
+				RF(conv_integer(OPr2a));
+		END IF;
+	END IF;
+	END PROCESS;
+END RF_arch;

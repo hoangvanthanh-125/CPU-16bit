@@ -43,7 +43,7 @@ BEGIN
 	OPCODE <= INSTR(15 DOWNTO 12);
 	PROCESS (clk, reset, OPCODE)
 	BEGIN
-		IF reset = '1' THEN
+		IF reset = '0' THEN
 			state <= NRESET;
 		ELSIF clk'EVENT AND clk = '1' THEN
 			CASE state IS
